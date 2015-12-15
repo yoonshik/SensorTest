@@ -1,23 +1,16 @@
 package com.yoonshikhong.sensortest;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -28,8 +21,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -60,37 +51,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         queue = Volley.newRequestQueue(this); // Instantiate the RequestQueue.
 
         createCheckAlertTimerTask(); // checks for alert every TIME_DELAY seconds
-        setUpCamera();
     }
 
-    private void setUpCamera() {
-        //here,we are making a folder named picFolder to store pics taken by the camera using this application
-        final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/picFolder/";
-        File newdir = new File(dir);
-        newdir.mkdirs();
-
-        Button capture = (Button) findViewById(R.id.btnCapture);
-        capture.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                // here,counter will be incremented each time,and the picture taken by camera will be stored as 1.jpg,2.jpg and likewise.
-                count++;
-                String file = dir + count + ".jpg";
-                File newfile = new File(file);
-                try {
-                    newfile.createNewFile();
-                } catch (IOException e) {
-                }
-
-                Uri outputFileUri = Uri.fromFile(newfile);
-
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-
-                startActivityForResult(cameraIntent, TAKE_PHOTO_CODE);
-            }
-        });
-    }
 
     private String generateDeviceId() {
         final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -111,18 +73,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             }
         }, 0, 3000);
     }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == TAKE_PHOTO_CODE && resultCode == RESULT_OK) {
-            Log.d("CameraDemo", "Pic saved");
-        }
-    }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -221,7 +171,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     public void postTrigger(Context context, final String sensor, final String data, final String timestamp){
-        RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest sr = new StringRequest(Request.Method.POST,"http://alertserver-1150.appspot.com/sendtrigger", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
