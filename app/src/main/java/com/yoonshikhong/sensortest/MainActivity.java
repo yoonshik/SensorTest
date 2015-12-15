@@ -40,6 +40,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private int TAKE_PHOTO_CODE = 0;
     private static int count=0;
 
+    private boolean ALERT = false;
+
 
 
     @Override
@@ -71,7 +73,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             public void run() {
                 checkAlert();
             }
-        }, 0, 3000);
+        }, 0, 1000);
     }
 
     @Override
@@ -130,8 +132,10 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             accelerometer_data.setText(acceleration_string.toCharArray(), 0, acceleration_string.length());
             String timestamp = getCurrentTime();
             postTrigger(this, "accelerometer", acceleration_string, timestamp);
+            if (!ALERT){
+                setBackgroundColor(Color.YELLOW);
+            }
 
-            setBackgroundColor(Color.YELLOW);
         }
     }
 
@@ -216,9 +220,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                         TextView poll_data = (TextView) findViewById(R.id.poll_data);
                         if (response.equalsIgnoreCase("true")) {
                             poll_data.setText("Alert.");
+                            ALERT = true;
                             setBackgroundColor(Color.RED);
                         } else if (response.equalsIgnoreCase("false")) {
                             poll_data.setText("No alert.");
+                            ALERT = false;
                             setBackgroundColor(Color.WHITE);
                         } else {
                             poll_data.setText("Unexpected output: " + response);
